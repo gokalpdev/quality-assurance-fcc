@@ -22,7 +22,7 @@ app.route("/").get((req, res) => {
 
 
 app.use(session({
-  secret: "lkdjal3",
+  secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true,
 }));
