@@ -6,7 +6,10 @@ const passport = require("passport");
 const session = require("express-session");
 const ObjectID = require("mongodb");
 const mongo = require('mongodb').MongoClient;
-const dotenv = require("dotenv")
+const dotenv = require("dotenv").config()
+const LocalStrategy = require('passport-local');
+
+
 
 const app = express();
 
@@ -18,10 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.route("/").get((req, res) => {
-  res.render(process.cwd() + '/views/pug/index', {title: 'Hello', message: 'Please login'})
-  //Change the response to render the Pug template
-});
+
 
 
 app.use(session({
@@ -31,17 +31,6 @@ app.use(session({
 }));
 
 
-passport.serializeUser((user, done) => {
-  done(null, user._id);
-});
-passport.deserializeUser((id, done) => {
-  db.collection('users').findOne(
-    {_id: new ObjectID(id)},
-      (err, doc) => {
-        done(null, doc);
-      }
-  );
-});
 
 mongo.connect(process.env.DATABASE, (err, db) => {
   if(err) {
@@ -50,6 +39,33 @@ mongo.connect(process.env.DATABASE, (err, db) => {
     console.log('Successful database connection');
 
     //serialization and app.listen
+    app.route("/").get((req, res) => {
+      res.render(process.cwd() + '/views/pug/index', {title: 'Hello', message: 'Please login'})
+      //Change the response to render the Pug template
+    });
+    passport.serializeUser((user, done) => {
+      done(null, user._id);
+    });
+    passport.deserializeUser((id, done) => {
+      db.collection('users').findOne(
+        {_id: new ObjectID(id)},
+          (err, doc) => {
+            done(null, doc);
+          }
+      );
+    });
+    passport.use(new LocalStrategy(
+      function(username, password, done) {
+        db.collection('users').findOne({ username: username }, function (err, user) {
+          console.log('User '+ username +' attempted to log in.');
+          if (err) { return done(err); }
+          if (!user) { return done(null, false); }
+          if (password !== user.password) { return done(null, false); }
+          return done(null, user);
+        });
+      }
+    ));
+    
   }
 });
 
