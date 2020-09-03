@@ -72,7 +72,7 @@ mongo.connect(process.env.DATABASE, (err, client) => {
 
     app.route("/")
     .get((req, res) => {
-      res.render(process.cwd() + '/views/pug/index', {title: 'Hello', message: 'Please login', showLogin: true, showRegistration: true})
+      res.render(process.cwd() + '/views/pug/index', {title: 'Home Page', message: 'Please login', showLogin: true, showRegistration: true})
     //Change the response to render the Pug template
   });
 
