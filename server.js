@@ -5,7 +5,8 @@ const fccTesting = require("./freeCodeCamp/fcctesting.js");
 const passport = require("passport");
 const session = require("express-session");
 const ObjectID = require("mongodb");
-const mongo = require('mongodb').MongoClient;
+const db = require('mongodb');
+const mongo = db.MongoClient;
 const dotenv = require("dotenv").config()
 const LocalStrategy = require('passport-local');
 const bodyParser = require("body-parser");
@@ -72,7 +73,22 @@ mongo.connect(process.env.DATABASE, (err, client) => {
       }
     )
 
-      app.get('/profile', (request, response) => {
+    let isSignedIn = (req, res, next) => {
+      if(req.isAuthenticated()){
+        next()
+      }else
+        response.redirect('/')
+      }
+
+
+      function ensureAuthenticated(req, res, next) {
+        if (req.isAuthenticated()) {
+          return next();
+        }
+        res.redirect('/');
+      };  
+
+      app.get('/profile', isSignedIn, (request, response) => {
         response.render('profile', {name: request.user.name})
       })
 
