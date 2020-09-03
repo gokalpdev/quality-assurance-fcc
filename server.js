@@ -76,23 +76,7 @@ mongo.connect(process.env.DATABASE, (err, client) => {
     //Change the response to render the Pug template
   });
 
-    app.route('/login')
-    .post(passport.authenticate('local', { failureRedirect: '/' }),(req,res) => {
-        res.redirect('/profile');
-    });
-
-    app.route('/logout')
-    .get((req, res) => {
-      req.logout();
-      res.redirect('/');
-    });
-
-    app.route('/profile')
-    .get( ensureAuthenticated, (req,res) => {
-        res.render(process.cwd() + '/views/pug/profile', {username: req.user.username});
-    });
-
-    app.route('/register')
+  app.route('/register')
   .post((req, res, next) => {
     db.collection('users').findOne({ username: req.body.username }, function(err, user) {
       if (err) {
@@ -121,6 +105,24 @@ mongo.connect(process.env.DATABASE, (err, client) => {
     }
   );
 
+  
+
+    app.route('/login')
+    .post(passport.authenticate('local', { failureRedirect: '/' }),(req,res) => {
+        res.redirect('/profile');
+    });
+
+    app.route('/logout')
+    .get((req, res) => {
+      req.logout();
+      res.redirect('/');
+    });
+
+    app.route('/profile')
+    .get( ensureAuthenticated, (req,res) => {
+        res.render(process.cwd() + '/views/pug/profile', {username: req.user.username});
+    });
+    
 
     app.use((req, res, next) => {
       res.status(404)
